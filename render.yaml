@@ -3,7 +3,7 @@ services:
     name: nestjs-productos-api
     env: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npx tsc -p tsconfig.build.json
     startCommand: npm run start:prod
     envVars:
       - key: NODE_VERSION
