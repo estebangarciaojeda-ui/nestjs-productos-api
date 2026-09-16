@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Res,
 } from '@nestjs/common';
 import type { Response } from 'express';
@@ -22,13 +23,13 @@ export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
 
   @Get()
-  listar() {
-    return this.productosService.findAll();
+  listar(@Query('nombre') nombre?: string) {
+    return this.productosService.findAll(nombre);
   }
 
   @Get(':id')
-  obtener(@Param('id', ParseIntPipe) id: number) {
-    const producto = this.productosService.findOne(id);
+  async obtener(@Param('id', ParseIntPipe) id: number) {
+    const producto = await this.productosService.findOne(id);
     return {
       ...producto,
       _links: {
@@ -41,26 +42,26 @@ export class ProductosController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  crear(@Body() dto: CrearProductoDto, @Res({ passthrough: true }) res: Response) {
-    const nuevo = this.productosService.crear(dto);
+  async crear(@Body() dto: CrearProductoDto, @Res({ passthrough: true }) res: Response) {
+    const nuevo = await this.productosService.crear(dto);
     res.setHeader('Location', `/api/v1/productos/${nuevo.id}`);
     return nuevo;
   }
 
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  reemplazar(@Param('id', ParseIntPipe) id: number, @Body() dto: CrearProductoDto) {
-    this.productosService.reemplazar(id, dto);
+  async reemplazar(@Param('id', ParseIntPipe) id: number, @Body() dto: CrearProductoDto) {
+    await this.productosService.reemplazar(id, dto);
   }
 
   @Patch(':id')
-  actualizarPrecio(@Param('id', ParseIntPipe) id: number, @Body() dto: ActualizarPrecioDto) {
+  async actualizarPrecio(@Param('id', ParseIntPipe) id: number, @Body() dto: ActualizarPrecioDto) {
     return this.productosService.actualizarPrecio(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  eliminar(@Param('id', ParseIntPipe) id: number) {
-    this.productosService.eliminar(id);
+  async eliminar(@Param('id', ParseIntPipe) id: number) {
+    await this.productosService.eliminar(id);
   }
 }
